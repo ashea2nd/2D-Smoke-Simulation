@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		494754F51DF74CD800C9CB6D /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 494754F41DF74CD800C9CB6D /* GLUT.framework */; };
+		914C14B21DF75A6B009E6753 /* linalg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 914C14B01DF75A6B009E6753 /* linalg.cpp */; settings = {ASSET_TAGS = (); }; };
 		9154865F1DF48C67008E2882 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9154865E1DF48C67008E2882 /* main.cpp */; };
 		915486B71DF49E13008E2882 /* Matrix2f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 915486B01DF49E13008E2882 /* Matrix2f.cpp */; };
 		915486B81DF49E13008E2882 /* Matrix3f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 915486B11DF49E13008E2882 /* Matrix3f.cpp */; };
@@ -38,6 +39,8 @@
 
 /* Begin PBXFileReference section */
 		494754F41DF74CD800C9CB6D /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
+		914C14B01DF75A6B009E6753 /* linalg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = linalg.cpp; sourceTree = "<group>"; };
+		914C14B11DF75A6B009E6753 /* linalg.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = linalg.hpp; sourceTree = "<group>"; };
 		9154865B1DF48C67008E2882 /* project */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = project; sourceTree = BUILT_PRODUCTS_DIR; };
 		9154865E1DF48C67008E2882 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		915486651DF48F52008E2882 /* MAC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MAC.h; sourceTree = "<group>"; };
@@ -114,6 +117,8 @@
 				915487A91DF4AA65008E2882 /* gl.h */,
 				915486C21DF49F69008E2882 /* fluid_sim.hpp */,
 				915486C11DF49F69008E2882 /* fluid_sim.cpp */,
+				914C14B01DF75A6B009E6753 /* linalg.cpp */,
+				914C14B11DF75A6B009E6753 /* linalg.hpp */,
 				9154865E1DF48C67008E2882 /* main.cpp */,
 				915486651DF48F52008E2882 /* MAC.h */,
 				915486661DF49616008E2882 /* util.h */,
@@ -209,6 +214,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				914C14B21DF75A6B009E6753 /* linalg.cpp in Sources */,
 				915486B91DF49E13008E2882 /* Matrix4f.cpp in Sources */,
 				915486B81DF49E13008E2882 /* Matrix3f.cpp in Sources */,
 				915486BD1DF49E13008E2882 /* Vector4f.cpp in Sources */,
@@ -304,6 +310,7 @@
 		915486631DF48C67008E2882 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				HEADER_SEARCH_PATHS = /usr/local/include/GLFW;
 				LIBRARY_SEARCH_PATHS = /usr/local/lib/;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
@@ -315,6 +322,7 @@
 		915486641DF48C67008E2882 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				HEADER_SEARCH_PATHS = /usr/local/include/GLFW;
 				LIBRARY_SEARCH_PATHS = /usr/local/lib/;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
