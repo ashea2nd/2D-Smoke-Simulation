@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "7E60D0EA68430D4D1280ADA1E8D8EBB4B9D5C8EA",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "7E60D0EA68430D4D1280ADA1E8D8EBB4B9D5C8EA" : 9223372036854775807,
+    "26C965C1C3698E48C79DAAD3CE11431F61645CA7" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "F236CCED-8BBB-42A1-8861-037277B0ED3C",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "7E60D0EA68430D4D1280ADA1E8D8EBB4B9D5C8EA" : "project\/",
+    "26C965C1C3698E48C79DAAD3CE11431F61645CA7" : "6.837"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "project",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "project.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/bingcao\/6.837.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "26C965C1C3698E48C79DAAD3CE11431F61645CA7"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/bboydreamer\/graphics_final.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "7E60D0EA68430D4D1280ADA1E8D8EBB4B9D5C8EA"
+    }
+  ]
+}

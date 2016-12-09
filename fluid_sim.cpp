@@ -25,6 +25,8 @@ void add_source ( int N, float * x, float * s, float dt )
 {
     int i, size=(N+2)*(N+2);
     for ( i=0 ; i<size ; i++ ) x[i] += dt*s[i];
+    //x[100] = 2;
+
 }
 
 void set_bnd ( int N, int b, float * x )
@@ -36,6 +38,10 @@ void set_bnd ( int N, int b, float * x )
         x[IX(N+1,i)] = b==1 ? -x[IX(N,i)] : x[IX(N,i)];
         x[IX(i,0  )] = b==2 ? -x[IX(i,1)] : x[IX(i,1)];
         x[IX(i,N+1)] = b==2 ? -x[IX(i,N)] : x[IX(i,N)];
+        /*if ((i > N/2 - 10) && (i < N/2 + 10)) {
+            x[IX(0  ,i)] = b==1 ? -1 : 1;
+            x[IX(N+1,i)] = b==1 ? -1 : 1;
+        }*/
     }
     x[IX(0  ,0  )] = 0.5f*(x[IX(1,0  )]+x[IX(0  ,1)]);
     x[IX(0  ,N+1)] = 0.5f*(x[IX(1,N+1)]+x[IX(0  ,N)]);
@@ -59,6 +65,8 @@ void diffuse ( int N, int b, float * x, float * x0, float diff, float dt )
 {
     float a=dt*diff*N*N;
     lin_solve ( N, b, x, x0, a, 1+4*a );
+    //lin_solve ( N, b, x, x0, a, 2+4*a );
+
 }
 
 void advect ( int N, int b, float * d, float * d0, float * u, float * v, float dt )
@@ -99,6 +107,13 @@ void project ( int N, float * u, float * v, float * p, float * div )
 void dens_step ( int N, float * x, float * x0, float * u, float * v, float diff, float dt )
 {
     add_source ( N, x, x0, dt );
+    
+    //x[98] = x[99] = x[100] = x[101] = x[102] = 2;
+    std::cout << "this is n " << N << std::endl;
+    //x[IX(N/2 - 1,1)] = x[IX(N/2,1)] = x[IX(N/2 + 1,1)] = 1;
+    for ( int i= N/2 - 10; i<=N/2 + 10 ; i++ ) {
+        x[IX(i,1)] = 1;
+    }
     SWAP ( x0, x ); diffuse ( N, 0, x, x0, diff, dt );
     SWAP ( x0, x ); advect ( N, 0, x, x0, u, v, dt );
 }
@@ -112,6 +127,13 @@ void temp_step ( int N, float * x, float * x0, float * u, float * v, float diff,
 
 void vel_step ( int N, float * u, float * v, float * u0, float * v0, float visc, float dt, float * temp, float * dens )
 {
+    //add_source ( int N, float * gridToBeUpdated, float * currentGrid, float time_step )
+    //v[98] = v[99] = v[100] = v[101] = v[102] = 2;
+    //u[] = u[99] = u[100] = u[101] = u[102] = 2;
+    //v[IX(N/2 - 1,1)] = v[IX(N/2,1)] = v[IX(N/2 + 1,1)] = 2.8;
+    for ( int i= N/2 - 10; i<=N/2 + 10 ; i++ ) {
+        v[IX(i,1)] = 100;
+    }
     add_source ( N, u, u0, dt ); add_source ( N, v, v0, dt );
     SWAP ( u0, u ); diffuse ( N, 1, u, u0, visc, dt );
     SWAP ( v0, v ); diffuse ( N, 2, v, v0, visc, dt );
