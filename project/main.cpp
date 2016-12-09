@@ -416,12 +416,8 @@ int main ( int argc, char ** argv )
     
     if ( argc == 1 ) {
         N = 200;
-<<<<<<< Updated upstream
-        dt = 100.0f/N;
-=======
         //dt = 0.1f;
         dt = 40.0f/N;
->>>>>>> Stashed changes
         diff = 0.0f;
         visc = 0.0f;
         force = 5.0f;
