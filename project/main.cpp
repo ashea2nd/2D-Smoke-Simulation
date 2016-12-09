@@ -189,10 +189,15 @@ static void draw_density ( void )
             //dxx correspond to color values
             //x+h and y+h means that each added source / density value corresponds to 4 grid regions
             //same 3 values = white
-            glColor3f ( d00, d00, d00 ); glVertex2f ( x, y );
-            glColor3f ( d10, d10, d10 ); glVertex2f ( x+h, y );
-            glColor3f ( d11, d11, d11 ); glVertex2f ( x+h, y+h );
-            glColor3f ( d01, d01, d01 ); glVertex2f ( x, y+h );
+            //glColor3f ( d00, d00, d00 ); glVertex2f ( x, y );
+            //glColor3f ( d10, d10, d10 ); glVertex2f ( x+h, y );
+            //glColor3f ( d11, d11, d11 ); glVertex2f ( x+h, y+h );
+            //glColor3f ( d01, d01, d01 ); glVertex2f ( x, y+h );
+            glColor3f ( 0, 0, d00 ); glVertex2f ( x, y );
+            glColor3f ( 0, 0, d10 ); glVertex2f ( x+h, y );
+            glColor3f ( 0, 0, d11 ); glVertex2f ( x+h, y+h );
+            glColor3f ( 0, 0, d01 ); glVertex2f ( x, y+h );
+
         }
     }
     
@@ -307,7 +312,7 @@ static void key_func ( unsigned char key, int x, int y )
 
 static void mouse_func ( int button, int state, int x, int y )
 {
-    std::cout << "Mouse is not moving" << std::endl;
+    //std::cout << "Mouse is not moving" << std::endl;
     omx = mx = x;
     omx = my = y;
     
@@ -316,7 +321,7 @@ static void mouse_func ( int button, int state, int x, int y )
 
 static void motion_func ( int x, int y )
 {
-    std::cout << "Mouse is moving" << std::endl;
+    //std::cout << "Mouse is moving" << std::endl;
     mx = x;
     my = y;
 }
@@ -411,7 +416,12 @@ int main ( int argc, char ** argv )
     
     if ( argc == 1 ) {
         N = 200;
+<<<<<<< Updated upstream
         dt = 100.0f/N;
+=======
+        //dt = 0.1f;
+        dt = 40.0f/N;
+>>>>>>> Stashed changes
         diff = 0.0f;
         visc = 0.0f;
         force = 5.0f;

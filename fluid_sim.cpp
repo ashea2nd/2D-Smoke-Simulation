@@ -109,7 +109,7 @@ void dens_step ( int N, float * x, float * x0, float * u, float * v, float diff,
     add_source ( N, x, x0, dt );
     
     //x[98] = x[99] = x[100] = x[101] = x[102] = 2;
-    std::cout << "this is n " << N << std::endl;
+    //std::cout << "this is n " << N << std::endl;
     //x[IX(N/2 - 1,1)] = x[IX(N/2,1)] = x[IX(N/2 + 1,1)] = 1;
     for ( int i= N/2 - 10; i<=N/2 + 10 ; i++ ) {
         x[IX(i,1)] = 1;
@@ -132,7 +132,7 @@ void vel_step ( int N, float * u, float * v, float * u0, float * v0, float visc,
     //u[] = u[99] = u[100] = u[101] = u[102] = 2;
     //v[IX(N/2 - 1,1)] = v[IX(N/2,1)] = v[IX(N/2 + 1,1)] = 2.8;
     for ( int i= N/2 - 10; i<=N/2 + 10 ; i++ ) {
-        v[IX(i,1)] = 100;
+        v[IX(i,1)] = 1;
     }
     add_source ( N, u, u0, dt ); add_source ( N, v, v0, dt );
     SWAP ( u0, u ); diffuse ( N, 1, u, u0, visc, dt );
