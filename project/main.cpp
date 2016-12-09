@@ -63,6 +63,10 @@ static void clear_data ( void )
     
     for ( i=0 ; i<size ; i++ ) {
         u[i] = v[i] = u_prev[i] = v_prev[i] = dens[i] = dens_prev[i] = 0.0f;
+        if ( i > N/2 - 15 && i < N/2 + 15){
+            dens_prev[i] = 10.0f;
+            v_prev[i] = 10.0;
+        }
     }
 }
 
@@ -118,7 +122,7 @@ static void draw_velocity ( void )
     glLineWidth ( 1.0f );
     
     glBegin ( GL_LINES );
-    
+    //x and y are special pixel / grid coordinates
     for ( i=1 ; i<=N ; i++ ) {
         x = (i-0.5f)*h;
         for ( j=1 ; j<=N ; j++ ) {
@@ -147,10 +151,14 @@ static void draw_density ( void )
             y = (j-0.5f)*h;
             
             d00 = dens[IX(i,j)];
+            //d00 = 100;
             d01 = dens[IX(i,j+1)];
             d10 = dens[IX(i+1,j)];
             d11 = dens[IX(i+1,j+1)];
-            
+            //glColor3f assigns the color
+            //dxx correspond to color values
+            //x+h and y+h means that each added source / density value corresponds to 4 grid regions
+            //same 3 values = white
             glColor3f ( d00, d00, d00 ); glVertex2f ( x, y );
             glColor3f ( d10, d10, d10 ); glVertex2f ( x+h, y );
             glColor3f ( d11, d11, d11 ); glVertex2f ( x+h, y+h );
@@ -175,7 +183,9 @@ static void get_from_UI ( float * d, float * u, float * v )
         u[i] = v[i] = d[i] = 0.0f;
     }
     
-    if ( !mouse_down[0] && !mouse_down[2] ) return;
+    if ( !mouse_down[0] && !mouse_down[2] ){
+        return;
+    }
     
     i = (int)((       mx /(float)win_x)*N+1);
     j = (int)(((win_y-my)/(float)win_y)*N+1);
@@ -184,7 +194,19 @@ static void get_from_UI ( float * d, float * u, float * v )
     
     if ( mouse_down[0] ) {
         u[IX(i,j)] = force * (mx-omx);
+        //std::cout << "mx" << std::endl;
+        //std::cout << (mx == omx) << std::endl;
+        //std::cout << "omx" << std::endl;
+        //std::cout << omx << std::endl;
         v[IX(i,j)] = force * (omy-my);
+        //std::cout << (my == omy) << std::endl;
+
+        /*std::cout << "my" << std::endl;
+        std::cout << my << std::endl;
+        std::cout << "omy" << std::endl;
+        std::cout << omy << std::endl;
+        */
+        //std::cout << "Left click down" << std::endl;
     }
     
     if ( mouse_down[2] ) {
@@ -227,6 +249,7 @@ static void key_func ( unsigned char key, int x, int y )
 
 static void mouse_func ( int button, int state, int x, int y )
 {
+    std::cout << "Mouse is not moving" << std::endl;
     omx = mx = x;
     omx = my = y;
     
@@ -235,6 +258,7 @@ static void mouse_func ( int button, int state, int x, int y )
 
 static void motion_func ( int x, int y )
 {
+    std::cout << "Mouse is moving" << std::endl;
     mx = x;
     my = y;
 }
@@ -250,6 +274,7 @@ static void reshape_func ( int width, int height )
 
 static void idle_func ( void )
 {
+    //get_from_UI ( float * d, float * u, float * v )
     get_from_UI ( dens_prev, u_prev, v_prev );
     vel_step ( N, u, v, u_prev, v_prev, visc, dt );
     dens_step ( N, dens, dens_prev, u, v, diff, dt );
@@ -288,10 +313,10 @@ static void open_glut_window ( void )
     glutSwapBuffers ();
     glClear ( GL_COLOR_BUFFER_BIT );
     glutSwapBuffers ();
-    
     pre_display ();
     
     glutKeyboardFunc ( key_func );
+    
     glutMouseFunc ( mouse_func );
     glutMotionFunc ( motion_func );
     glutReshapeFunc ( reshape_func );
@@ -325,10 +350,12 @@ int main ( int argc, char ** argv )
     }
     
     if ( argc == 1 ) {
-        N = 64;
-        dt = 0.1f;
+        std::cout << "fucked up" << std::endl;
+        N = 200;
+        //dt = 0.1f;
+        dt = 100.0f/N;
         diff = 0.0f;
-        visc = 0.0f;
+        visc = 0.00f;
         force = 5.0f;
         source = 100.0f;
         fprintf ( stderr, "Using defaults : N=%d dt=%g diff=%g visc=%g force = %g source=%g\n",
@@ -357,7 +384,7 @@ int main ( int argc, char ** argv )
     win_x = 512;
     win_y = 512;
     open_glut_window ();
-    
+    printf("wnidow opened\n");
     glutMainLoop ();
     
     exit ( 0 );
