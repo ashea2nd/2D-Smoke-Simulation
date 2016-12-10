@@ -459,7 +459,7 @@ static void key_func ( unsigned char key, int x, int y )
           break;
     case 'z':
     case 'Z':
-          init_dens = fmax(init_dens - 0.2, 0.8);
+          init_dens = fmax(init_dens - 0.2, 0.2);
           break;
     case 'x':
     case 'X':
