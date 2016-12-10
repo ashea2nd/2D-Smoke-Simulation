@@ -49,6 +49,8 @@ static float * u, * v, * u_prev, * v_prev;
 static float * dens, * dens_prev;
 static float * temp, * temp_prev;
 static float * boundary;
+static int block_width;
+static int block_height;
 
 static int win_id;
 static int win_x, win_y;
@@ -149,6 +151,28 @@ static void draw_modes() {
   for (char c : "Display " + get_mode_string(display_mode)) {
     glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
   }
+  std::string init_dens_char = std::to_string(init_dens);
+  glRasterPos2f(.005, .95);
+  for (char c : "Source Density (X Z): " + init_dens_char) {
+    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
+  }
+  std::string init_V_char = std::to_string(init_V);
+  glRasterPos2f(.005, .92);
+  for (char c : "Source Velocity (Up Down): " + init_V_char) {
+    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
+  }
+    
+  std::string block_height_char = std::to_string(block_height);
+  glRasterPos2f(.005, .89);
+  for (char c : "Block Height (A D): " + block_height_char) {
+    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
+  }
+  std::string block_width_char = std::to_string(block_width);
+  glRasterPos2f(.005, .86);
+  for (char c : "Block Width (W S): " + block_width_char) {
+    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
+  }
+
   glRasterPos2f(.83, .98);
   for (char c : "Adding " + get_mode_string(add_mode)) {
     glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
@@ -341,8 +365,8 @@ static void get_from_UI ( float * d, float * u, float * v, float * temp )
         omy = my;
     }
     if (mouse_down[2]) {
-        for (int start = 0; start < 4; start++) {
-            for (int end = 0; end < 4; end++) {
+        for (int start = 0; start < block_width; start++) {
+            for (int end = 0; end < block_height; end++) {
                 boundary[IX(i + start, j + end)] = 1.0f;
             }
         }
@@ -440,6 +464,22 @@ static void key_func ( unsigned char key, int x, int y )
     case 'x':
     case 'X':
           init_dens = fmin(init_dens + 0.2, 3);
+          break;
+    case 'A':
+    case 'a':
+          block_width = fmax(block_width - 1, 3);
+          break;
+    case 'd':
+    case 'D':
+          block_width = fmin(block_width + 1, 20);
+          break;
+    case 'w':
+    case 'W':
+          block_height = fmin(block_height + 1, 20);
+          break;
+    case 's':
+    case 'S':
+          block_height = fmax(block_height - 1, 3);
           break;
   }
 }
@@ -555,6 +595,8 @@ int main ( int argc, char ** argv )
         center = N/2;
         init_V = 1;
         init_dens = 0.8;
+        block_width = 3;
+        block_height = 3;
         dt = 40.0f/N;
         diff = 0.0f;
         visc = 0.0f;
@@ -581,6 +623,7 @@ int main ( int argc, char ** argv )
     printf ( "\t Hold 'i', 'o', or 'p' to increase r,g,b color channels, respectively\n" );
     printf ( "\t Hold 'j', 'k', or 'l' to decrease r,g,b color channels, respectively\n" );
     printf ( "\t Use 'z' and 'x' to toggle source density" );
+    printf ( "\t Use 'a' and 's' to toggle block size " );
     printf ( "\t Use arrow keys to move source around\n");
     printf ( "\t Right click to add a boundary\n");
     printf ( "\t Quit by pressing the 'q' key\n" );
