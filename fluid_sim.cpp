@@ -138,7 +138,7 @@ int checkBoundaryType(int N, float * b, int i, int j) {
     
 }
 
-void dens_step ( int N, float * x, float * x0, float * u, float * v, float diff, float dt, float * boundary )
+void dens_step ( int N, float * x, float * x0, float * u, float * v, float diff, float dt, float * boundary, int center, float init_dens)
 {
     add_source ( N, x, x0, dt );
     
@@ -164,8 +164,8 @@ void dens_step ( int N, float * x, float * x0, float * u, float * v, float diff,
     END_FOR
 
     
-    for ( int i= N/2 - 10; i<=N/2 + 10 ; i++ ) {
-        x[IX(i,1)] = 1;
+    for ( int i= fmax(center - 10, 0); i<=fmin(center + 10, N); i++ ) {
+        x[IX(i,1)] = init_dens;
     }
     SWAP ( x0, x ); diffuse ( N, 0, x, x0, diff, dt );
     SWAP ( x0, x ); advect ( N, 0, x, x0, u, v, dt );
@@ -181,14 +181,14 @@ void temp_step ( int N, float * x, float * x0, float * u, float * v, float diff,
 
 
 
-void vel_step ( int N, float * u, float * v, float * u0, float * v0, float visc, float dt, float * temp, float * dens, float * boundary )
+void vel_step ( int N, float * u, float * v, float * u0, float * v0, float visc, float dt, float * temp, float * dens, float * boundary, int center, int init_V)
 {
     //add_source ( int N, float * gridToBeUpdated, float * currentGrid, float time_step )
     //v[98] = v[99] = v[100] = v[101] = v[102] = 2;
     //u[] = u[99] = u[100] = u[101] = u[102] = 2;
     //v[IX(N/2 - 1,1)] = v[IX(N/2,1)] = v[IX(N/2 + 1,1)] = 2.8;
-    for ( int i= N/2 - 10; i<=N/2 + 10 ; i++ ) {
-        v[IX(i,1)] = 1;
+    for ( int i= fmax(center - 10, 0); i<=fmin(center + 10, N); i++ ) {
+        v[IX(i,1)] = init_V;
     }
     add_source ( N, u, u0, dt ); add_source ( N, v, v0, dt );
     SWAP ( u0, u ); diffuse ( N, 1, u, u0, visc, dt );

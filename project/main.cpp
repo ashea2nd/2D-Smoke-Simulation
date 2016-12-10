@@ -28,8 +28,8 @@
 
 /* external definitions (from solver.c) */
 
-extern void dens_step ( int N, float * x, float * x0, float * u, float * v, float diff, float dt, float * boundary);
-extern void vel_step ( int N, float * u, float * v, float * u0, float * v0, float visc, float dt, float * temp, float * dens, float * boundary );
+extern void dens_step ( int N, float * x, float * x0, float * u, float * v, float diff, float dt, float * boundary, int center, float init_dens);
+extern void vel_step ( int N, float * u, float * v, float * u0, float * v0, float visc, float dt, float * temp, float * dens, float * boundary, int center, int init_V);
 extern void temp_step ( int N, float * temp, float * temp0, float * u, float * v, float diff, float dt );
 //extern void draw_boundary ( int N, float * boundary, float * u, float * v, float diff, float dt );
 
@@ -41,6 +41,9 @@ static float dt, diff, visc;
 static float force, smoke_source, temp_source;
 static int display_mode;
 static int add_mode;
+static int center;
+static int init_V;
+static float init_dens;
 
 static float * u, * v, * u_prev, * v_prev;
 static float * dens, * dens_prev;
@@ -82,10 +85,10 @@ static void clear_data ( void )
     
     for ( i=0 ; i<size ; i++ ) {
         u[i] = v[i] = u_prev[i] = v_prev[i] = dens[i] = dens_prev[i] = temp[i] = temp_prev[i] = boundary[i] = 0.0f;
-        if ( i > N/2 - 15 && i < N/2 + 15){
-            dens_prev[i] = 10.0f;
-            v_prev[i] = 10.0;
-        }
+        //if ( i > N/2 - 15 && i < N/2 + 15){
+          //  dens_prev[i] = 10.0f;
+            //v_prev[i] = 10.0;
+        //}
     }
 }
 
@@ -352,6 +355,25 @@ static void get_from_UI ( float * d, float * u, float * v, float * temp )
  GLUT callback routines
  ----------------------------------------------------------------------
  */
+static void special_key_func ( int key, int x, int y )
+{
+    switch(key) {
+        case GLUT_KEY_LEFT:
+            center = fmax(center - 3, 0);
+            break;
+        case GLUT_KEY_RIGHT:
+            center = fmin(center + 3, N);
+            break;
+        case GLUT_KEY_UP:
+            init_V = fmin(init_V + 1, 40);
+            break;
+        case GLUT_KEY_DOWN:
+            init_V = fmax(init_V - 1, 1);
+            break;
+
+    }
+}
+
 bool isDown = false;
 static void key_func ( unsigned char key, int x, int y )
 {
@@ -411,8 +433,14 @@ static void key_func ( unsigned char key, int x, int y )
           total_blue = fmax(total_blue - 0.03, 0);
           std::cout << "Blue: " << total_blue << std::endl;
           break;
-   
-          
+    case 'z':
+    case 'Z':
+          init_dens = fmax(init_dens - 0.2, 0.8);
+          break;
+    case 'x':
+    case 'X':
+          init_dens = fmin(init_dens + 0.2, 3);
+          break;
   }
 }
 
@@ -445,8 +473,8 @@ static void idle_func ( void )
 {
     get_from_UI ( dens_prev, u_prev, v_prev, temp_prev );
     temp_step ( N, temp, temp_prev, u, v, diff, dt );
-    vel_step ( N, u, v, u_prev, v_prev, visc, dt, temp, dens, boundary);
-    dens_step ( N, dens, dens_prev, u, v, diff, dt, boundary);
+    vel_step ( N, u, v, u_prev, v_prev, visc, dt, temp, dens, boundary, center, init_V);
+    dens_step ( N, dens, dens_prev, u, v, diff, dt, boundary, center, init_dens);
 
     glutSetWindow ( win_id );
     glutPostRedisplay ();
@@ -489,6 +517,7 @@ static void open_glut_window ( void )
     pre_display ();
     
     glutKeyboardFunc ( key_func );
+    glutSpecialFunc ( special_key_func );
     glutMouseFunc ( mouse_func );
     glutMotionFunc ( motion_func );
     glutReshapeFunc ( reshape_func );
@@ -523,6 +552,9 @@ int main ( int argc, char ** argv )
     if ( argc == 1 ) {
         N = 200;
         //dt = 0.1f;
+        center = N/2;
+        init_V = 1;
+        init_dens = 0.8;
         dt = 40.0f/N;
         diff = 0.0f;
         visc = 0.0f;
@@ -548,6 +580,8 @@ int main ( int argc, char ** argv )
     printf ( "\t Cleagr the simulation by pressing the 'c' key\n" );
     printf ( "\t Hold 'i', 'o', or 'p' to increase r,g,b color channels, respectively\n" );
     printf ( "\t Hold 'j', 'k', or 'l' to decrease r,g,b color channels, respectively\n" );
+    printf ( "\t Use 'z' and 'x' to toggle source density" );
+    printf ( "\t Use arrow keys to move source around\n");
     printf ( "\t Right click to add a boundary\n");
     printf ( "\t Quit by pressing the 'q' key\n" );
     
