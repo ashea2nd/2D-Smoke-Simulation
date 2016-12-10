@@ -338,8 +338,8 @@ static void get_from_UI ( float * d, float * u, float * v, float * temp )
         omy = my;
     }
     if (mouse_down[2]) {
-        for (int start = 0; start < 5; start++) {
-            for (int end = 0; end < 5; end++) {
+        for (int start = 0; start < 8; start++) {
+            for (int end = 0; end < 8; end++) {
                 boundary[IX(i + start, j + end)] = 1.0f;
             }
         }
