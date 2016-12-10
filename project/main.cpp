@@ -16,6 +16,9 @@
 #include <OpenGL/glu.h>
 #include <GLUT/glut.h>
 #include "linalg.hpp"
+#include <math.h>
+#include <algorithm>
+
 
 #define IX(i,j) ((i)+(N+2)*(j))
 #define SMOKE_MODE 0
@@ -25,9 +28,11 @@
 
 /* external definitions (from solver.c) */
 
-extern void dens_step ( int N, float * x, float * x0, float * u, float * v, float diff, float dt );
-extern void vel_step ( int N, float * u, float * v, float * u0, float * v0, float visc, float dt, float * temp, float * dens );
+extern void dens_step ( int N, float * x, float * x0, float * u, float * v, float diff, float dt, float * boundary);
+extern void vel_step ( int N, float * u, float * v, float * u0, float * v0, float visc, float dt, float * temp, float * dens, float * boundary );
 extern void temp_step ( int N, float * temp, float * temp0, float * u, float * v, float diff, float dt );
+//extern void draw_boundary ( int N, float * boundary, float * u, float * v, float diff, float dt );
+
 
 /* global variables */
 
@@ -40,12 +45,16 @@ static int add_mode;
 static float * u, * v, * u_prev, * v_prev;
 static float * dens, * dens_prev;
 static float * temp, * temp_prev;
+static float * boundary;
 
 static int win_id;
 static int win_x, win_y;
 static int mouse_down[3];
 static int omx, omy, mx, my;
 
+static float total_green, total_red = 0.0f;
+static float total_blue = 1.0f;
+static float MAX_COLOR = 255.0f;
 
 /*
  ----------------------------------------------------------------------
@@ -64,6 +73,7 @@ static void free_data ( void )
   if ( dens_prev ) free ( dens_prev );
   if ( temp ) free ( temp );
   if ( temp_prev ) free ( temp_prev );
+  if ( boundary ) free ( boundary );
 }
 
 static void clear_data ( void )
@@ -71,7 +81,7 @@ static void clear_data ( void )
     int i, size=(N+2)*(N+2);
     
     for ( i=0 ; i<size ; i++ ) {
-        u[i] = v[i] = u_prev[i] = v_prev[i] = dens[i] = dens_prev[i] = 0.0f;
+        u[i] = v[i] = u_prev[i] = v_prev[i] = dens[i] = dens_prev[i] = temp[i] = temp_prev[i] = boundary[i] = 0.0f;
         if ( i > N/2 - 15 && i < N/2 + 15){
             dens_prev[i] = 10.0f;
             v_prev[i] = 10.0;
@@ -91,8 +101,9 @@ static int allocate_data ( void )
   dens_prev	= (float *) malloc ( size*sizeof(float) );
   temp		= (float *) malloc ( size*sizeof(float) );
   temp_prev	= (float *) malloc ( size*sizeof(float) );
+  boundary  = (float *) malloc ( size*sizeof(float) );
   
-  if ( !u || !v || !u_prev || !v_prev || !dens || !dens_prev ) {
+  if ( !u || !v || !u_prev || !v_prev || !dens || !dens_prev || !boundary) {
     fprintf ( stderr, "cannot allocate data\n" );
     return ( 0 );
   }
@@ -141,6 +152,7 @@ static void draw_modes() {
   }
 }
 
+
 static void draw_velocity ( void )
 {
     int i, j;
@@ -169,7 +181,7 @@ static void draw_velocity ( void )
 static void draw_density ( void )
 {
     int i, j;
-    float x, y, h, d00, d01, d10, d11;
+    float x, y, h, d00, d01, d10, d11, isBoundary;
     
     h = 1.0f/N;
     
@@ -180,11 +192,17 @@ static void draw_density ( void )
         for ( j=0 ; j<=N ; j++ ) {
             y = (j-0.5f)*h;
             
+            
             d00 = dens[IX(i,j)];
-            //d00 = 100;
+            isBoundary = boundary[IX(i,j)];
+            
+            //if (isBoundary) {
+              //  glColor3f ( 0, 100, 0 ); glVertex2f ( x, y );
+            //} else {
             d01 = dens[IX(i,j+1)];
             d10 = dens[IX(i+1,j)];
             d11 = dens[IX(i+1,j+1)];
+            
             //glColor3f assigns the color
             //dxx correspond to color values
             //x+h and y+h means that each added source / density value corresponds to 4 grid regions
@@ -193,11 +211,51 @@ static void draw_density ( void )
             //glColor3f ( d10, d10, d10 ); glVertex2f ( x+h, y );
             //glColor3f ( d11, d11, d11 ); glVertex2f ( x+h, y+h );
             //glColor3f ( d01, d01, d01 ); glVertex2f ( x, y+h );
-            glColor3f ( 0, 0, d00 ); glVertex2f ( x, y );
-            glColor3f ( 0, 0, d10 ); glVertex2f ( x+h, y );
-            glColor3f ( 0, 0, d11 ); glVertex2f ( x+h, y+h );
-            glColor3f ( 0, 0, d01 ); glVertex2f ( x, y+h );
-
+            if (isBoundary) {
+                glColor3f ( 0.75, 0.75, 0.75 ); glVertex2f ( x, y );
+                glColor3f ( 0.75, 0.75, 0.75 ); glVertex2f ( x+h, y );
+                glColor3f ( 0.75, 0.75, 0.75 ); glVertex2f ( x+h, y+h );
+                glColor3f ( 0.75, 0.75, 0.75 ); glVertex2f ( x, y+h );
+                
+            } else {
+                /*
+                int thresh = 0.7f;
+                if (d00 > thresh) {
+                    glColor3f ( total_red, total_green, d00); glVertex2f ( x, y );
+                } else {
+                    glColor3f ( 0, 0, d00 ); glVertex2f ( x, y );
+                }
+                
+                if (d10 > thresh) {
+                    glColor3f ( total_red, total_green, d10 ); glVertex2f ( x+h, y );
+                } else {
+                    glColor3f ( 0, 0, d10 ); glVertex2f ( x, y );
+                }
+                
+                if (d11 > thresh) {
+                    glColor3f ( total_red, total_green, d11 ); glVertex2f ( x+h, y+h );
+                } else {
+                    glColor3f ( 0, 0, d11 ); glVertex2f ( x, y );
+                }
+                
+                if (d01 > thresh) {
+                    glColor3f ( total_red, total_green, d01 ); glVertex2f ( x, y+h );
+                } else {
+                    glColor3f ( 0, 0, d01 ); glVertex2f ( x, y );
+                }
+                */
+                glColor3f ( d00*total_red, d00*total_green, d00*total_blue ); glVertex2f ( x, y );
+                glColor3f ( d10*total_red, d10*total_green, d10*total_blue ); glVertex2f ( x+h, y );
+                glColor3f ( d11*total_red, d11*total_green, d11*total_blue ); glVertex2f ( x+h, y+h );
+                glColor3f ( d01*total_red, d01*total_green, d01*total_blue ); glVertex2f ( x, y+h );
+                /*
+                glColor3f ( 0, 0, d00 ); glVertex2f ( x, y );
+                glColor3f ( 0, 0, d10 ); glVertex2f ( x+h, y );
+                glColor3f ( 0, 0, d11 ); glVertex2f ( x+h, y+h );
+                glColor3f ( 0, 0, d01 ); glVertex2f ( x, y+h );
+                */
+            }
+            //}
         }
     }
     
@@ -250,30 +308,42 @@ static void get_from_UI ( float * d, float * u, float * v, float * temp )
     for ( i=0 ; i<size ; i++ ) {
         u[i] = v[i] = d[i] = temp[i] = 0.0f;
     }
-    
-    if ( !mouse_down[0]) return;
+    if (!mouse_down[0] && !mouse_down[2]) return;
     
     i = (int)((       mx /(float)win_x)*N+1);
     j = (int)(((win_y-my)/(float)win_y)*N+1);
-    
     if ( i<1 || i>N || j<1 || j>N ) return;
     
-    if ( add_mode == VELOCITY_MODE ) {
-        u[IX(i,j)] = force * (mx-omx);
-        v[IX(i,j)] = force * (omy-my);
-    }
+    if (mouse_down[0]){
     
-    else if ( add_mode == SMOKE_MODE ) {
-        d[IX(i,j)] = smoke_source;
-    }
+        //i = (int)((       mx /(float)win_x)*N+1);
+        //j = (int)(((win_y-my)/(float)win_y)*N+1);
+    
+        //if ( i<1 || i>N || j<1 || j>N ) return;
+    
+        if ( add_mode == VELOCITY_MODE ) {
+            u[IX(i,j)] = force * (mx-omx);
+            v[IX(i,j)] = force * (omy-my);
+        }
+    
+        else if ( add_mode == SMOKE_MODE ) {
+            d[IX(i,j)] = smoke_source;
+        }
 
-    else if ( add_mode == TEMPERATURE_MODE ) {
-        temp[IX(i, j)] = temp_source;
+        else if ( add_mode == TEMPERATURE_MODE ) {
+            temp[IX(i, j)] = temp_source;
+        }
+    
+        omx = mx;
+        omy = my;
     }
-    
-    omx = mx;
-    omy = my;
-    
+    if (mouse_down[2]) {
+        for (int start = 0; start < 5; start++) {
+            for (int end = 0; end < 5; end++) {
+                boundary[IX(i + start, j + end)] = 1.0f;
+            }
+        }
+    }
     return;
 }
 
@@ -282,9 +352,10 @@ static void get_from_UI ( float * d, float * u, float * v, float * temp )
  GLUT callback routines
  ----------------------------------------------------------------------
  */
-
+bool isDown = false;
 static void key_func ( unsigned char key, int x, int y )
 {
+    //std::cout << key << std::endl;
   switch ( key )
   {
     case 'c':
@@ -300,6 +371,8 @@ static void key_func ( unsigned char key, int x, int y )
         
     case 'v':
     case 'V':
+          isDown = true;
+          //std::cout << isDown << std::endl;
       display_mode = (display_mode + 1) % NUM_MODES;
       break;
       
@@ -307,6 +380,39 @@ static void key_func ( unsigned char key, int x, int y )
     case 'T':
       add_mode = (add_mode + 1) % NUM_MODES;
       break;
+    case 'i':
+    case 'I':
+          total_red = fmin(total_red + 0.03, 1);
+          std::cout << "Red: " << total_red << std::endl;
+          break;
+    case 'o':
+    case 'O':
+          total_green = fmin(total_green + 0.03, 1);
+          std::cout << "Green: " << total_green << std::endl;
+          break;
+    case 'p':
+    case 'P':
+          total_blue = fmin(total_blue + 0.03, 1);
+          std::cout << "Blue: " << total_blue << std::endl;
+
+          break;
+    case 'j':
+    case 'J':
+          total_red = fmax(total_red - 0.03, 0);
+          std::cout << "Red: " << total_red << std::endl;
+          break;
+    case 'k':
+    case 'K':
+          total_green = fmax(total_green - 0.03, 0);
+          std::cout << "Green: " << total_green << std::endl;
+          break;
+    case 'l':
+    case 'L':
+          total_blue = fmax(total_blue - 0.03, 0);
+          std::cout << "Blue: " << total_blue << std::endl;
+          break;
+   
+          
   }
 }
 
@@ -338,9 +444,9 @@ static void reshape_func ( int width, int height )
 static void idle_func ( void )
 {
     get_from_UI ( dens_prev, u_prev, v_prev, temp_prev );
-    vel_step ( N, u, v, u_prev, v_prev, visc, dt, temp, dens );
-    dens_step ( N, dens, dens_prev, u, v, diff, dt );
     temp_step ( N, temp, temp_prev, u, v, diff, dt );
+    vel_step ( N, u, v, u_prev, v_prev, visc, dt, temp, dens, boundary);
+    dens_step ( N, dens, dens_prev, u, v, diff, dt, boundary);
 
     glutSetWindow ( win_id );
     glutPostRedisplay ();
@@ -349,7 +455,7 @@ static void idle_func ( void )
 static void display_func ( void )
 {
     pre_display ();
-    
+
     if ( display_mode == VELOCITY_MODE ) draw_velocity ();
     else if ( display_mode == SMOKE_MODE ) draw_density ();
     else if (display_mode == TEMPERATURE_MODE ) draw_temperature();
@@ -365,7 +471,7 @@ static void display_func ( void )
  open_glut_window --- open a glut compatible window and set callbacks
  ----------------------------------------------------------------------
  */
-
+int asdf = 0;
 static void open_glut_window ( void )
 {
     glutInitDisplayMode ( GLUT_RGBA | GLUT_DOUBLE );
@@ -422,7 +528,7 @@ int main ( int argc, char ** argv )
         visc = 0.0f;
         force = 5.0f;
         smoke_source = 100.0f;
-        temp_source = 1.0f;
+        temp_source = 0.5f;
         fprintf ( stderr, "Using defaults : N=%d dt=%g diff=%g visc=%g force = %g smoke_source=%g temp_source=%g\n",
                  N, dt, diff, visc, force, smoke_source, temp_source );
     } else {
@@ -440,6 +546,9 @@ int main ( int argc, char ** argv )
     printf ( "\t Add quantities with the left mouse button\n" );
     printf ( "\t Toggle display with the 'v' key\n" );
     printf ( "\t Cleagr the simulation by pressing the 'c' key\n" );
+    printf ( "\t Hold 'i', 'o', or 'p' to increase r,g,b color channels, respectively\n" );
+    printf ( "\t Hold 'j', 'k', or 'l' to decrease r,g,b color channels, respectively\n" );
+    printf ( "\t Right click to add a boundary\n");
     printf ( "\t Quit by pressing the 'q' key\n" );
     
     display_mode = 0;

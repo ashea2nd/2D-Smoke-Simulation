@@ -19,7 +19,7 @@
 
 // Constants for buoyant force
 #define ALPHA 0.1f
-#define BETA 0.1f
+#define BETA 100.0f
 
 void add_source ( int N, float * x, float * s, float dt )
 {
@@ -103,19 +103,73 @@ void project ( int N, float * u, float * v, float * p, float * div )
     END_FOR
     set_bnd ( N, 1, u ); set_bnd ( N, 2, v );
 }
+int checkBoundaryType(int N, float * b, int i, int j) {
+    if (b[IX(i + 1 , j)] &&
+        b[IX(i - 1, j)] &&
+        b[IX(i, j + 1)] &&
+        b[IX(i, j - 1)]) {return 4;}
+    else if
+        (b[IX(i + 1 , j)] &&
+         b[IX(i - 1, j)] &&
+         b[IX(i, j - 1)]) {return 7;}
+    else if
+        (b[IX(i + 1 , j)] &&
+         b[IX(i - 1, j)] &&
+         b[IX(i, j + 1)]) {return 1;}
+    else if
+        (b[IX(i + 1 , j)] &&
+         b[IX(i, j + 1)] &&
+         b[IX(i, j - 1)]) {return 3;}
+    else if
+        (b[IX(i - 1 , j)] &&
+         b[IX(i, j + 1)] &&
+         b[IX(i, j - 1)]) {return 5;}
+    else if
+        (b[IX(i + 1 , j)] &&
+         b[IX(i, j + 1)]) {return 0;}
+    else if
+        (b[IX(i + 1 , j)] &&
+         b[IX(i, j - 1)]) {return 6;}
+    else if
+        (b[IX(i - 1 , j)] &&
+         b[IX(i, j - 1)]) {return 8;}
+    
+    else return 2;
+    
+}
 
-void dens_step ( int N, float * x, float * x0, float * u, float * v, float diff, float dt )
+void dens_step ( int N, float * x, float * x0, float * u, float * v, float diff, float dt, float * boundary )
 {
     add_source ( N, x, x0, dt );
     
     //x[98] = x[99] = x[100] = x[101] = x[102] = 2;
     //std::cout << "this is n " << N << std::endl;
     //x[IX(N/2 - 1,1)] = x[IX(N/2,1)] = x[IX(N/2 + 1,1)] = 1;
+    int i, j;
+    
+    FOR_EACH_CELL
+    if (boundary[IX(i, j)] != 0){
+        /*
+        x[IX(i + 1, j)] = 2*x[IX(i + 1, j)];
+        x[IX(i - 1, j)] = 2* x[IX(i - 1, j)];
+        x[IX(i, j + 1)] = 2*x[IX(i, j + 1)];
+        x[IX(i, j - 1)] = 2*x[IX(i, j - 1)];
+        x[IX(i + 1, j + 1)] = 2*x[IX(i + 1, j + 1)];
+        x[IX(i + 1, j - 1)] = 2*x[IX(i + 1, j - 1)];
+        x[IX(i - 1, j + 1)] = 2*x[IX(i - 1, j + 1)];
+        x[IX(i - 1, j - 1)] = 2*x[IX(i - 1, j - 1)];
+         */
+        x[IX(i, j)] = 0;
+    }
+    END_FOR
+
+    
     for ( int i= N/2 - 10; i<=N/2 + 10 ; i++ ) {
         x[IX(i,1)] = 1;
     }
     SWAP ( x0, x ); diffuse ( N, 0, x, x0, diff, dt );
     SWAP ( x0, x ); advect ( N, 0, x, x0, u, v, dt );
+
 }
 
 void temp_step ( int N, float * x, float * x0, float * u, float * v, float diff, float dt )
@@ -125,7 +179,9 @@ void temp_step ( int N, float * x, float * x0, float * u, float * v, float diff,
   SWAP ( x0, x ); advect ( N, 0, x, x0, u, v, dt );
 }
 
-void vel_step ( int N, float * u, float * v, float * u0, float * v0, float visc, float dt, float * temp, float * dens )
+
+
+void vel_step ( int N, float * u, float * v, float * u0, float * v0, float visc, float dt, float * temp, float * dens, float * boundary )
 {
     //add_source ( int N, float * gridToBeUpdated, float * currentGrid, float time_step )
     //v[98] = v[99] = v[100] = v[101] = v[102] = 2;
@@ -145,5 +201,49 @@ void vel_step ( int N, float * u, float * v, float * u0, float * v0, float visc,
     for (int i = 0; i < (N + 2) * (N + 2); i++) {
       v[i] += fmax(-ALPHA * dens[i] + BETA * temp[i], 0);
     }
+    int i, j;
+    FOR_EACH_CELL
+    if (boundary[IX(i, j)] != 0) {
+        int boundType = checkBoundaryType(N, boundary, i, j);
+        switch (boundType)
+        {
+            case 0:
+                v[IX(i, j)] = -1.0*(v[IX(i - 1, j)] +
+                                    v[IX(i, j - 1)] +
+                                    v[IX(i - 1, j - 1)])/2.0f;
+                break;
+            case 2:
+                v[IX(i, j)] = -1.0*(v[IX(i + 1, j)] +
+                                    v[IX(i, j - 1)] +
+                                    v[IX(i + 1, j - 1)])/2.0f;
+                break;
+            case 6:
+                v[IX(i, j)] = -1.0*(v[IX(i - 1, j)] +
+                                    v[IX(i, j + 1)] +
+                                    v[IX(i - 1, j + 1)])/2.0f;
+                break;
+            case 8:
+                v[IX(i, j)] = -1.0*(v[IX(i + 1, j)] +
+                                    v[IX(i, j + 1)] +
+                                    v[IX(i + 1, j + 1)])/2.0f;
+                break;
+            case 1:
+                v[IX(i, j)] = -1.2*v[IX(i, j - 1)];
+                break;
+            case 7:
+                v[IX(i, j)] = -1.2*v[IX(i, j + 1)];
+                break;
+            case 3:
+                v[IX(i, j)] = -1.2*v[IX(i - 1, j)];
+                break;
+            case 5:
+                v[IX(i, j)] = -1.2*v[IX(i + 1, j)];
+                break;
+            case 4:
+                v[IX(i, j)] = 0;
+                break;
+        }
+    };
+    END_FOR;
 }
 
