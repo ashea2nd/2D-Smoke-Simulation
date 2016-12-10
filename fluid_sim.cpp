@@ -210,51 +210,51 @@ void vel_step ( int N, float * u, float * v, float * u0, float * v0, float visc,
             case 0:
                 v[IX(i, j)] = -1.0*(v[IX(i - 1, j)] +
                                     v[IX(i, j - 1)] -
-                                    v[IX(i - 1, j - 1)])/2.0f;
+                                    v[IX(i - 1, j - 1)])/3.0f;
                 u[IX(i, j)] = -1.0*(u[IX(i - 1, j)] +
                                     u[IX(i, j - 1)] -
-                                    u[IX(i - 1, j - 1)])/2.0f;
+                                    u[IX(i - 1, j - 1)])/3.0f;
                 break;
             case 2:
                 v[IX(i, j)] = -1.0*(v[IX(i + 1, j)] +
                                     v[IX(i, j - 1)] -
-                                    v[IX(i + 1, j - 1)])/2.0f;
+                                    v[IX(i + 1, j - 1)])/3.0f;
                 u[IX(i, j)] = -1.0*(u[IX(i + 1, j)] +
                                     u[IX(i, j - 1)] -
-                                    u[IX(i + 1, j - 1)])/2.0f;
+                                    u[IX(i + 1, j - 1)])/3.0f;
                 break;
             case 6:
                 v[IX(i, j)] = -1.0*(v[IX(i - 1, j)] +
                                     v[IX(i, j + 1)] -
-                                    v[IX(i - 1, j + 1)])/2.0f;
+                                    v[IX(i - 1, j + 1)])/3.0f;
                 u[IX(i, j)] = -1.0*(u[IX(i - 1, j)] +
                                     u[IX(i, j + 1)] -
-                                    u[IX(i - 1, j + 1)])/2.0f;
+                                    u[IX(i - 1, j + 1)])/3.0f;
                 break;
             case 8:
                 v[IX(i, j)] = -1.0*(v[IX(i + 1, j)] +
                                     v[IX(i, j + 1)] -
-                                    v[IX(i + 1, j + 1)])/2.0f;
+                                    v[IX(i + 1, j + 1)])/3.0f;
                 u[IX(i, j)] = -1.0*(u[IX(i + 1, j)] +
                                     u[IX(i, j + 1)] -
-                                    u[IX(i + 1, j + 1)])/2.0f;
+                                    u[IX(i + 1, j + 1)])/3.0f;
 
                 break;
             case 1:
-                v[IX(i, j)] = -1.4*v[IX(i, j - 1)];
-                u[IX(i, j)] = -1.4*u[IX(i, j - 1)];
+                v[IX(i, j)] = -1*v[IX(i, j - 1)];
+                //u[IX(i, j)] = -1*u[IX(i, j - 1)];
                 break;
             case 7:
-                v[IX(i, j)] = -1.4*v[IX(i, j + 1)];
-                u[IX(i, j)] = -1.4*u[IX(i, j + 1)];
+                v[IX(i, j)] = -1*v[IX(i, j + 1)];
+                //u[IX(i, j)] = -1*u[IX(i, j + 1)];
                 break;
             case 3:
-                v[IX(i, j)] = -1.4*v[IX(i - 1, j)];
-                u[IX(i, j)] = -1.4*u[IX(i - 1, j)];
+                //v[IX(i, j)] = -1*v[IX(i - 1, j)];
+                u[IX(i, j)] = -1*u[IX(i - 1, j)];
                 break;
             case 5:
-                v[IX(i, j)] = -1.4*v[IX(i + 1, j)];
-                u[IX(i, j)] = -1.4*u[IX(i + 1, j)];
+                //v[IX(i, j)] = -1*v[IX(i + 1, j)];
+                u[IX(i, j)] = -1*u[IX(i + 1, j)];
                 break;
             case 4:
                 v[IX(i, j)] = 0;
