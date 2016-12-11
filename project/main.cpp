@@ -47,6 +47,12 @@ static float init_dens;
 
 static float * u, * v, * u_prev, * v_prev;
 static float * dens, * dens_prev;
+static float * red_dens, * red_dens_prev;
+static float * green_dens, * green_dens_prev;
+static float * blue_dens, * blue_dens_prev;
+static float * custom_dens, * custom_dens_prev;
+
+
 static float * temp, * temp_prev;
 static float * boundary;
 static int block_width;
@@ -56,9 +62,9 @@ static int win_id;
 static int win_x, win_y;
 static int mouse_down[3];
 static int omx, omy, mx, my;
+static int color_mode = 0;
 
-static float total_green, total_red = 0.0f;
-static float total_blue = 1.0f;
+static float total_green, total_red, total_blue = 0.0f;
 static float MAX_COLOR = 255.0f;
 
 /*
@@ -76,6 +82,15 @@ static void free_data ( void )
   if ( v_prev ) free ( v_prev );
   if ( dens ) free ( dens );
   if ( dens_prev ) free ( dens_prev );
+  if ( red_dens ) free ( red_dens );
+  if ( red_dens_prev ) free ( red_dens_prev );
+  if ( green_dens ) free ( green_dens );
+  if ( green_dens_prev ) free ( green_dens_prev );
+  if (blue_dens) free (blue_dens);
+  if (blue_dens_prev) free (blue_dens_prev);
+  if (custom_dens) free (custom_dens);
+  if (custom_dens_prev) free (custom_dens_prev);
+
   if ( temp ) free ( temp );
   if ( temp_prev ) free ( temp_prev );
   if ( boundary ) free ( boundary );
@@ -86,7 +101,9 @@ static void clear_data ( void )
     int i, size=(N+2)*(N+2);
     
     for ( i=0 ; i<size ; i++ ) {
-        u[i] = v[i] = u_prev[i] = v_prev[i] = dens[i] = dens_prev[i] = temp[i] = temp_prev[i] = boundary[i] = 0.0f;
+        u[i] = v[i] = u_prev[i] = v_prev[i] = dens[i] = dens_prev[i] = red_dens[i] = red_dens_prev[i] =
+        green_dens[i] = green_dens_prev[i] = temp[i] = temp_prev[i] = boundary[i] = blue_dens[i] = blue_dens_prev[i] =
+            custom_dens[i] = custom_dens_prev[i] = 0.0f;
         //if ( i > N/2 - 15 && i < N/2 + 15){
           //  dens_prev[i] = 10.0f;
             //v_prev[i] = 10.0;
@@ -107,6 +124,15 @@ static int allocate_data ( void )
   temp		= (float *) malloc ( size*sizeof(float) );
   temp_prev	= (float *) malloc ( size*sizeof(float) );
   boundary  = (float *) malloc ( size*sizeof(float) );
+  red_dens  = (float *) malloc ( size*sizeof(float) );
+  red_dens_prev = (float *) malloc ( size*sizeof(float) );
+  green_dens = (float *) malloc ( size*sizeof(float) );
+  green_dens_prev = (float *) malloc ( size*sizeof(float) );
+  blue_dens = (float *) malloc ( size*sizeof(float) );
+  blue_dens_prev = (float *) malloc ( size*sizeof(float) );
+  custom_dens = (float *) malloc ( size*sizeof(float) );
+  custom_dens_prev = (float *) malloc ( size*sizeof(float) );
+
   
   if ( !u || !v || !u_prev || !v_prev || !dens || !dens_prev || !boundary) {
     fprintf ( stderr, "cannot allocate data\n" );
@@ -208,7 +234,11 @@ static void draw_velocity ( void )
 static void draw_density ( void )
 {
     int i, j;
-    float x, y, h, d00, d01, d10, d11, isBoundary;
+    //float x, y, h, d00, d01, d10, d11, r00, r01, r10, r11, g00, g01, g10, g11, isBoundary;
+    float x, y, h, d00_red, d01_red, d10_red, d11_red, isBoundary;
+    float d00_green, d01_green, d10_green, d11_green,
+            d00_blue, d01_blue, d10_blue, d11_blue,
+             d00_custom, d01_custom, d10_custom, d11_custom;
     
     h = 1.0f/N;
     
@@ -219,17 +249,40 @@ static void draw_density ( void )
         for ( j=0 ; j<=N ; j++ ) {
             y = (j-0.5f)*h;
             
-            
-            d00 = dens[IX(i,j)];
             isBoundary = boundary[IX(i,j)];
-            
-            //if (isBoundary) {
-              //  glColor3f ( 0, 100, 0 ); glVertex2f ( x, y );
-            //} else {
+            /*
+            d00 = dens[IX(i,j)];
             d01 = dens[IX(i,j+1)];
             d10 = dens[IX(i+1,j)];
             d11 = dens[IX(i+1,j+1)];
             
+            r00 = red_dens[IX(i,j)];
+            r01 = red_dens[IX(i,j+1)];
+            r10 = red_dens[IX(i+1,j)];
+            r11 = red_dens[IX(i+1,j+1)];
+            
+            g00 = green_dens[IX(i,j)];
+            g01 = green_dens[IX(i,j+1)];
+            g10 = green_dens[IX(i+1,j)];
+            g11 = green_dens[IX(i+1,j+1)];
+            */
+            
+            d00_red = red_dens[IX(i,j)];
+            d01_red = red_dens[IX(i,j+1)];
+            d10_red = red_dens[IX(i+1,j)];
+            d11_red = red_dens[IX(i+1,j+1)];
+            d00_blue = blue_dens[IX(i,j)];
+            d01_blue = blue_dens[IX(i,j+1)];
+            d10_blue = blue_dens[IX(i+1,j)];
+            d11_blue = blue_dens[IX(i+1,j+1)];
+            d00_green = green_dens[IX(i,j)];
+            d01_green = green_dens[IX(i,j+1)];
+            d10_green = green_dens[IX(i+1,j)];
+            d11_green = green_dens[IX(i+1,j+1)];
+            d00_custom = custom_dens[IX(i,j)];
+            d01_custom = custom_dens[IX(i,j+1)];
+            d10_custom = custom_dens[IX(i+1,j)];
+            d11_custom = custom_dens[IX(i+1,j+1)];
             //glColor3f assigns the color
             //dxx correspond to color values
             //x+h and y+h means that each added source / density value corresponds to 4 grid regions
@@ -271,10 +324,48 @@ static void draw_density ( void )
                     glColor3f ( 0, 0, d01 ); glVertex2f ( x, y );
                 }
                 */
+                /*
+                glColor3f ( 0, 0, r00); glVertex2f ( x, y );
+                glColor3f ( 0, 0, r10 ); glVertex2f ( x+h, y );
+                glColor3f ( 0, 0, r11); glVertex2f ( x+h, y+h );
+                glColor3f ( 0, 0, r01); glVertex2f ( x, y+h );
+                */
+                
+                /*
+                glColor3f ( r00, g00, d00); glVertex2f ( x, y );
+                glColor3f ( r10, g10, d10); glVertex2f ( x+h, y );
+                glColor3f ( r11, g11, d11); glVertex2f ( x+h, y+h );
+                glColor3f ( r01, g01, d01); glVertex2f ( x, y+h );
+                */
+                /*
+                glColor3f ( d00_red*total_red, d00_green*total_green, d00_blue*total_blue ); glVertex2f ( x, y );
+                glColor3f ( d10_red*total_red, d10_green*total_green, d10_blue*total_blue ); glVertex2f ( x+h, y );
+                glColor3f ( d11_red*total_red, d11_green*total_green, d11_blue*total_blue ); glVertex2f ( x+h, y+h );
+                glColor3f ( d01_red*total_red, d01_green*total_green, d01_blue*total_blue ); glVertex2f ( x, y+h );
+                */
+                
+                //USE THIS ONE
+                /*
+                glColor3f ( d00_red, d00_green, d00_blue); glVertex2f ( x, y );
+                glColor3f ( d10_red, d10_green, d10_blue); glVertex2f ( x+h, y );
+                glColor3f ( d11_red, d11_green, d11_blue); glVertex2f ( x+h, y+h );
+                glColor3f ( d01_red, d01_green, d01_blue); glVertex2f ( x, y+h );
+                */
+                
+                
+                glColor3f ( d00_red + d00_custom*total_red, d00_green + d00_custom*total_green, d00_blue + d00_custom*total_blue); glVertex2f ( x, y );
+                glColor3f ( d10_red + d10_custom*total_red, d10_green + d10_custom*total_green, d10_blue + d10_custom*total_blue); glVertex2f ( x+h, y );
+                glColor3f ( d11_red + d11_custom*total_red, d11_green + d11_custom*total_green, d11_blue + d11_custom*total_blue); glVertex2f ( x+h, y+h );
+                glColor3f ( d01_red + d01_custom*total_red, d01_green + d01_custom*total_green, d01_blue + d01_custom*total_blue); glVertex2f ( x, y+h );
+                
+                
+                
+                /*
                 glColor3f ( d00*total_red, d00*total_green, d00*total_blue ); glVertex2f ( x, y );
                 glColor3f ( d10*total_red, d10*total_green, d10*total_blue ); glVertex2f ( x+h, y );
                 glColor3f ( d11*total_red, d11*total_green, d11*total_blue ); glVertex2f ( x+h, y+h );
                 glColor3f ( d01*total_red, d01*total_green, d01*total_blue ); glVertex2f ( x, y+h );
+                */
                 /*
                 glColor3f ( 0, 0, d00 ); glVertex2f ( x, y );
                 glColor3f ( 0, 0, d10 ); glVertex2f ( x+h, y );
@@ -394,7 +485,6 @@ static void special_key_func ( int key, int x, int y )
         case GLUT_KEY_DOWN:
             init_V = fmax(init_V - 1, 1);
             break;
-
     }
 }
 
@@ -481,6 +571,10 @@ static void key_func ( unsigned char key, int x, int y )
     case 'S':
           block_height = fmax(block_height - 1, 3);
           break;
+    case 'm':
+    case 'M':
+          color_mode = fmod(color_mode + 1, 4);
+          break;
   }
 }
 
@@ -511,11 +605,37 @@ static void reshape_func ( int width, int height )
 
 static void idle_func ( void )
 {
-    get_from_UI ( dens_prev, u_prev, v_prev, temp_prev );
+    float * d;
+    float r_init, b_init, g_init, c_init = 0;
+    if (color_mode == 0) {
+        //d = dens_prev;
+        r_init = init_dens;
+    } else if (color_mode == 1) {
+        //d = blue_dens_prev;
+        b_init = init_dens;
+    } else if (color_mode == 2) {
+        //d = green_dens_prev;
+        g_init = init_dens;
+    } else {
+        c_init = init_dens;
+    }
+    
+    get_from_UI ( red_dens_prev, u_prev, v_prev, temp_prev );
+    get_from_UI ( blue_dens_prev, u_prev, v_prev, temp_prev );
+    get_from_UI ( green_dens_prev, u_prev, v_prev, temp_prev );
+    get_from_UI ( custom_dens_prev, u_prev, v_prev, temp_prev );
+
+
     temp_step ( N, temp, temp_prev, u, v, diff, dt );
     vel_step ( N, u, v, u_prev, v_prev, visc, dt, temp, dens, boundary, center, init_V);
-    dens_step ( N, dens, dens_prev, u, v, diff, dt, boundary, center, init_dens);
+    //dens_step ( N, dens, dens_prev, u, v, diff, dt, boundary, center, init_dens);
+    
+    dens_step ( N, red_dens, red_dens_prev, u, v, diff, dt, boundary, center, r_init);
+    dens_step ( N, blue_dens, blue_dens_prev, u, v, diff, dt, boundary, center, b_init);
+    dens_step ( N, green_dens, green_dens_prev, u, v, diff, dt, boundary, center, g_init);
+    dens_step ( N, custom_dens, custom_dens_prev, u, v, diff, dt, boundary, center, c_init);
 
+    
     glutSetWindow ( win_id );
     glutPostRedisplay ();
 }
@@ -539,7 +659,6 @@ static void display_func ( void )
  open_glut_window --- open a glut compatible window and set callbacks
  ----------------------------------------------------------------------
  */
-int asdf = 0;
 static void open_glut_window ( void )
 {
     glutInitDisplayMode ( GLUT_RGBA | GLUT_DOUBLE );
