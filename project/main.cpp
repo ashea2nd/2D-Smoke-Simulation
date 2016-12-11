@@ -190,12 +190,12 @@ static void draw_modes() {
     
   std::string block_height_char = std::to_string(block_height);
   glRasterPos2f(.005, .89);
-  for (char c : "Block Height (A D): " + block_height_char) {
+  for (char c : "Block Height (W S): " + block_height_char) {
     glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
   }
   std::string block_width_char = std::to_string(block_width);
   glRasterPos2f(.005, .86);
-  for (char c : "Block Width (W S): " + block_width_char) {
+  for (char c : "Block Width (A D): " + block_width_char) {
     glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
   }
 
@@ -419,7 +419,7 @@ static void draw_temperature ( void )
  */
 
 
-static void get_from_UI ( float * d, float * u, float * v, float * temp )
+static void get_from_UI ( float * d, float * u, float * v, float * temp, int curr_color_mode )
 {
     int i, j, size = (N+2)*(N+2);
     
@@ -440,20 +440,29 @@ static void get_from_UI ( float * d, float * u, float * v, float * temp )
         //if ( i<1 || i>N || j<1 || j>N ) return;
     
         if ( add_mode == VELOCITY_MODE ) {
-            u[IX(i,j)] = force * (mx-omx);
-            v[IX(i,j)] = force * (omy-my);
+            if (curr_color_mode == 3){
+                u[IX(i,j)] = force * (mx-(omx));
+                v[IX(i,j)] = force * ((omy)-my);
+                std::cout << mx << omx << std::endl;
+                std::cout << my << omy << std::endl;
+                omx = mx;
+                omy = my;
+
+            }
         }
     
         else if ( add_mode == SMOKE_MODE ) {
-            d[IX(i,j)] = smoke_source;
+            if (color_mode == curr_color_mode){
+                d[IX(i,j)] = smoke_source;
+            }
         }
 
         else if ( add_mode == TEMPERATURE_MODE ) {
             temp[IX(i, j)] = temp_source;
         }
     
-        omx = mx;
-        omy = my;
+        //omx = mx;
+        //omy = my;
     }
     if (mouse_down[2]) {
         for (int start = 0; start < block_width; start++) {
@@ -581,9 +590,10 @@ static void key_func ( unsigned char key, int x, int y )
 static void mouse_func ( int button, int state, int x, int y )
 {
     //std::cout << "Mouse is not moving" << std::endl;
-    omx = mx = x;
-    omx = my = y;
-    
+    //omx = mx = x;
+    //omx = my = y;
+    mx = x;
+    my = y;
     mouse_down[button] = state == GLUT_DOWN;
 }
 
@@ -620,11 +630,10 @@ static void idle_func ( void )
         c_init = init_dens;
     }
     
-    get_from_UI ( red_dens_prev, u_prev, v_prev, temp_prev );
-    get_from_UI ( blue_dens_prev, u_prev, v_prev, temp_prev );
-    get_from_UI ( green_dens_prev, u_prev, v_prev, temp_prev );
-    get_from_UI ( custom_dens_prev, u_prev, v_prev, temp_prev );
-
+    get_from_UI ( red_dens_prev, u_prev, v_prev, temp_prev, 0);
+    get_from_UI ( blue_dens_prev, u_prev, v_prev, temp_prev, 1);
+    get_from_UI ( green_dens_prev, u_prev, v_prev, temp_prev, 2);
+    get_from_UI ( custom_dens_prev, u_prev, v_prev, temp_prev, 3);
 
     temp_step ( N, temp, temp_prev, u, v, diff, dt );
     vel_step ( N, u, v, u_prev, v_prev, visc, dt, temp, dens, boundary, center, init_V);
@@ -719,7 +728,7 @@ int main ( int argc, char ** argv )
         dt = 40.0f/N;
         diff = 0.0f;
         visc = 0.0f;
-        force = 5.0f;
+        force = 2.0f;
         smoke_source = 100.0f;
         temp_source = 0.5f;
         fprintf ( stderr, "Using defaults : N=%d dt=%g diff=%g visc=%g force = %g smoke_source=%g temp_source=%g\n",
