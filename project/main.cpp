@@ -238,7 +238,8 @@ static void draw_density ( void )
     float x, y, h, d00_red, d01_red, d10_red, d11_red, isBoundary;
     float d00_green, d01_green, d10_green, d11_green,
             d00_blue, d01_blue, d10_blue, d11_blue,
-             d00_custom, d01_custom, d10_custom, d11_custom;
+             d00_custom, d01_custom, d10_custom, d11_custom,
+                d00, d01, d10, d11;
     
     h = 1.0f/N;
     
@@ -283,6 +284,13 @@ static void draw_density ( void )
             d01_custom = custom_dens[IX(i,j+1)];
             d10_custom = custom_dens[IX(i+1,j)];
             d11_custom = custom_dens[IX(i+1,j+1)];
+            
+            
+            d00 = (d00_red + d00_blue + d00_green)/3.0f;
+            d01 = (d00_red + d00_blue + d00_green)/3.0f;
+            d10 = (d00_red + d00_blue + d00_green)/3.0f;
+            d11 = (d00_red + d00_blue + d00_green)/3.0f;
+
             //glColor3f assigns the color
             //dxx correspond to color values
             //x+h and y+h means that each added source / density value corresponds to 4 grid regions
@@ -344,7 +352,6 @@ static void draw_density ( void )
                 glColor3f ( d01_red*total_red, d01_green*total_green, d01_blue*total_blue ); glVertex2f ( x, y+h );
                 */
                 
-                //USE THIS ONE
                 /*
                 glColor3f ( d00_red, d00_green, d00_blue); glVertex2f ( x, y );
                 glColor3f ( d10_red, d10_green, d10_blue); glVertex2f ( x+h, y );
@@ -352,13 +359,13 @@ static void draw_density ( void )
                 glColor3f ( d01_red, d01_green, d01_blue); glVertex2f ( x, y+h );
                 */
                 
-                
+                //USE THIS ONE
+
                 glColor3f ( d00_red + d00_custom*total_red, d00_green + d00_custom*total_green, d00_blue + d00_custom*total_blue); glVertex2f ( x, y );
                 glColor3f ( d10_red + d10_custom*total_red, d10_green + d10_custom*total_green, d10_blue + d10_custom*total_blue); glVertex2f ( x+h, y );
                 glColor3f ( d11_red + d11_custom*total_red, d11_green + d11_custom*total_green, d11_blue + d11_custom*total_blue); glVertex2f ( x+h, y+h );
                 glColor3f ( d01_red + d01_custom*total_red, d01_green + d01_custom*total_green, d01_blue + d01_custom*total_blue); glVertex2f ( x, y+h );
-                
-                
+
                 
                 /*
                 glColor3f ( d00*total_red, d00*total_green, d00*total_blue ); glVertex2f ( x, y );
@@ -566,19 +573,19 @@ static void key_func ( unsigned char key, int x, int y )
           break;
     case 'A':
     case 'a':
-          block_width = fmax(block_width - 1, 3);
+          block_width = fmax(block_width - 2, 3);
           break;
     case 'd':
     case 'D':
-          block_width = fmin(block_width + 1, 20);
+          block_width = fmin(block_width + 2, 40);
           break;
     case 'w':
     case 'W':
-          block_height = fmin(block_height + 1, 20);
+          block_height = fmin(block_height + 2, 40);
           break;
     case 's':
     case 'S':
-          block_height = fmax(block_height - 1, 3);
+          block_height = fmax(block_height - 2, 3);
           break;
     case 'm':
     case 'M':
@@ -635,6 +642,7 @@ static void idle_func ( void )
     get_from_UI ( green_dens_prev, u_prev, v_prev, temp_prev, 2);
     get_from_UI ( custom_dens_prev, u_prev, v_prev, temp_prev, 3);
 
+    
     temp_step ( N, temp, temp_prev, u, v, diff, dt );
     vel_step ( N, u, v, u_prev, v_prev, visc, dt, temp, dens, boundary, center, init_V);
     //dens_step ( N, dens, dens_prev, u, v, diff, dt, boundary, center, init_dens);
