@@ -44,6 +44,7 @@ static int add_mode;
 static int center;
 static int init_V;
 static float init_dens;
+static float custom_init_dens = 1.0f;
 
 static float * u, * v, * u_prev, * v_prev;
 static float * dens, * dens_prev;
@@ -360,11 +361,13 @@ static void draw_density ( void )
                 */
                 
                 //USE THIS ONE
-
-                glColor3f ( d00_red + d00_custom*total_red, d00_green + d00_custom*total_green, d00_blue + d00_custom*total_blue); glVertex2f ( x, y );
-                glColor3f ( d10_red + d10_custom*total_red, d10_green + d10_custom*total_green, d10_blue + d10_custom*total_blue); glVertex2f ( x+h, y );
-                glColor3f ( d11_red + d11_custom*total_red, d11_green + d11_custom*total_green, d11_blue + d11_custom*total_blue); glVertex2f ( x+h, y+h );
-                glColor3f ( d01_red + d01_custom*total_red, d01_green + d01_custom*total_green, d01_blue + d01_custom*total_blue); glVertex2f ( x, y+h );
+                if (color_mode == 3) {
+                    custom_init_dens = 1.0f;
+                }
+                glColor3f ( d00_red + d00_custom*total_red/custom_init_dens, d00_green + d00_custom*total_green/custom_init_dens, d00_blue + d00_custom*total_blue/custom_init_dens); glVertex2f ( x, y );
+                glColor3f ( d10_red + d10_custom*total_red/custom_init_dens, d10_green + d10_custom*total_green/custom_init_dens, d10_blue + d10_custom*total_blue/custom_init_dens); glVertex2f ( x+h, y );
+                glColor3f ( d11_red + d11_custom*total_red/custom_init_dens, d11_green + d11_custom*total_green/custom_init_dens, d11_blue + d11_custom*total_blue/custom_init_dens); glVertex2f ( x+h, y+h );
+                glColor3f ( d01_red + d01_custom*total_red/custom_init_dens, d01_green + d01_custom*total_green/custom_init_dens, d01_blue + d01_custom*total_blue/custom_init_dens); glVertex2f ( x, y+h );
 
                 
                 /*
@@ -569,7 +572,7 @@ static void key_func ( unsigned char key, int x, int y )
           break;
     case 'x':
     case 'X':
-          init_dens = fmin(init_dens + 0.2, 3);
+          init_dens = fmin(init_dens + 0.2, 3.5);
           break;
     case 'A':
     case 'a':
@@ -635,6 +638,7 @@ static void idle_func ( void )
         g_init = init_dens;
     } else {
         c_init = init_dens;
+        custom_init_dens = c_init;
     }
     
     get_from_UI ( red_dens_prev, u_prev, v_prev, temp_prev, 0);
