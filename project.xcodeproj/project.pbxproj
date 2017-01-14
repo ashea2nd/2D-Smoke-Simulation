@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		494754F51DF74CD800C9CB6D /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 494754F41DF74CD800C9CB6D /* GLUT.framework */; };
-		914C14B21DF75A6B009E6753 /* linalg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 914C14B01DF75A6B009E6753 /* linalg.cpp */; settings = {ASSET_TAGS = (); }; };
+		914C14B21DF75A6B009E6753 /* linalg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 914C14B01DF75A6B009E6753 /* linalg.cpp */; };
 		9154865F1DF48C67008E2882 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9154865E1DF48C67008E2882 /* main.cpp */; };
 		915486B71DF49E13008E2882 /* Matrix2f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 915486B01DF49E13008E2882 /* Matrix2f.cpp */; };
 		915486B81DF49E13008E2882 /* Matrix3f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 915486B11DF49E13008E2882 /* Matrix3f.cpp */; };
@@ -21,7 +21,6 @@
 		915486C71DF4A032008E2882 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 915486C61DF4A032008E2882 /* OpenGL.framework */; };
 		915487A21DF4A33A008E2882 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 915487A11DF4A33A008E2882 /* Cocoa.framework */; };
 		915487A41DF4A342008E2882 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 915487A31DF4A342008E2882 /* IOKit.framework */; };
-		915487A61DF4A58C008E2882 /* libglfw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 915487A51DF4A58C008E2882 /* libglfw3.a */; };
 		915487A81DF4A863008E2882 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 915487A71DF4A863008E2882 /* CoreVideo.framework */; };
 /* End PBXBuildFile section */
 
@@ -66,7 +65,6 @@
 		915486C61DF4A032008E2882 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		915487A11DF4A33A008E2882 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		915487A31DF4A342008E2882 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
-		915487A51DF4A58C008E2882 /* libglfw3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libglfw3.a; path = ../../../../../usr/local/lib/libglfw3.a; sourceTree = "<group>"; };
 		915487A71DF4A863008E2882 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		915487A91DF4AA65008E2882 /* gl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gl.h; path = ../gl.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -78,7 +76,6 @@
 			files = (
 				494754F51DF74CD800C9CB6D /* GLUT.framework in Frameworks */,
 				915487A81DF4A863008E2882 /* CoreVideo.framework in Frameworks */,
-				915487A61DF4A58C008E2882 /* libglfw3.a in Frameworks */,
 				915487A41DF4A342008E2882 /* IOKit.framework in Frameworks */,
 				915487A21DF4A33A008E2882 /* Cocoa.framework in Frameworks */,
 				915486C71DF4A032008E2882 /* OpenGL.framework in Frameworks */,
@@ -93,7 +90,6 @@
 			children = (
 				494754F41DF74CD800C9CB6D /* GLUT.framework */,
 				915487A71DF4A863008E2882 /* CoreVideo.framework */,
-				915487A51DF4A58C008E2882 /* libglfw3.a */,
 				915487A31DF4A342008E2882 /* IOKit.framework */,
 				915487A11DF4A33A008E2882 /* Cocoa.framework */,
 				915486C61DF4A032008E2882 /* OpenGL.framework */,
