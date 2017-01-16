@@ -1,5 +1,5 @@
 # 2D-Smoke-Simulation
-Final project for Graphics course. Runs on Mac/XCode
+Final project for Graphics course. Runs on Mac/XCode.
 
 Video of feature demos: https://youtu.be/N5_W4Y4tfFI
 
